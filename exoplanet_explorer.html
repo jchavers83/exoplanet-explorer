@@ -202,6 +202,15 @@ input[type=range]#tl-slider::-webkit-slider-thumb{-webkit-appearance:none;
   font-size:.65rem;color:rgba(138,151,181,.55);letter-spacing:.1em;
   text-transform:uppercase;pointer-events:none;white-space:nowrap}
 
+#mute-btn{position:fixed;bottom:1.25rem;left:1.25rem;z-index:160;
+  background:rgba(7,10,24,.7);border:1px solid rgba(74,125,255,.3);
+  color:rgba(255,255,255,.7);font-size:1.1rem;width:36px;height:36px;
+  border-radius:50%;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;backdrop-filter:blur(12px);
+  transition:all .2s;padding:0}
+#mute-btn:hover{border-color:var(--ac);color:#fff;
+  box-shadow:0 0 14px rgba(74,125,255,.4)}
+
 /* ── AI Chatbot ── */
 @keyframes pulse-glow{
   0%,100%{box-shadow:0 0 16px rgba(74,125,255,.35),0 0 32px rgba(74,125,255,.15)}
@@ -350,6 +359,10 @@ input[type=range]#tl-slider::-webkit-slider-thumb{-webkit-appearance:none;
     <div id="tour-stop"></div>
   </div>
 </div>
+
+<audio id="bg-audio" src="ambient.mp3" loop preload="auto"></audio>
+
+<button id="mute-btn" title="Toggle music" onclick="toggleMute()">🔊</button>
 
 <div id="tip"></div>
 <div class="hint">Drag to orbit · Scroll to zoom · Click to explore</div>
@@ -1077,6 +1090,24 @@ window.addEventListener('resize',()=>{
   camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
+
+// ═══════════════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════════════
+(function initAudio(){
+  const audio = document.getElementById('bg-audio');
+  audio.volume = 0.75;
+  // Autoplay requires a user gesture — start on first interaction
+  const start = () => { audio.play().catch(()=>{}); document.removeEventListener('pointerdown', start); };
+  document.addEventListener('pointerdown', start);
+})();
+
+function toggleMute(){
+  const audio = document.getElementById('bg-audio');
+  const btn   = document.getElementById('mute-btn');
+  if(audio.paused){ audio.play(); btn.textContent='🔊'; }
+  else            { audio.pause(); btn.textContent='🔇'; }
+}
 
 // ═══════════════════════════════════════════════════
 // RENDER LOOP
