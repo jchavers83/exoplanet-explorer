@@ -53,7 +53,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # ── GET ─────────────────────────────────────────
     def do_GET(self):
-        if self.path.startswith("/api/planets"):
+        if self.path == "/" or self.path == "":
+            self.send_response(302)
+            self.send_header("Location", "/exoplanet_explorer.html")
+            self.end_headers()
+        elif self.path.startswith("/api/planets"):
             self.serve_planets()
         else:
             super().do_GET()
