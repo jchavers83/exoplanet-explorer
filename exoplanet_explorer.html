@@ -1096,10 +1096,41 @@ window.addEventListener('resize',()=>{
 // ═══════════════════════════════════════════════════
 (function initAudio(){
   const audio = document.getElementById('bg-audio');
-  audio.volume = 0.75;
-  // Autoplay requires a user gesture — start on first interaction
-  const start = () => { audio.play().catch(()=>{}); document.removeEventListener('pointerdown', start); };
-  document.addEventListener('pointerdown', start);
+  audio.volume = 0;
+
+  function fadeIn(){
+    audio.play().then(()=>{
+      const target = 0.75;
+      const duration = 4000; // 4 second fade
+      const steps = 60;
+      const increment = target / steps;
+      const interval = duration / steps;
+      const timer = setInterval(()=>{
+        audio.volume = Math.min(target, audio.volume + increment);
+        if(audio.volume >= target) clearInterval(timer);
+      }, interval);
+    }).catch(()=>{
+      // Autoplay blocked — start on first interaction instead
+      const start = () => {
+        audio.play().then(()=>{
+          const target = 0.75;
+          const duration = 4000;
+          const steps = 60;
+          const increment = target / steps;
+          const interval = duration / steps;
+          const timer = setInterval(()=>{
+            audio.volume = Math.min(target, audio.volume + increment);
+            if(audio.volume >= target) clearInterval(timer);
+          }, interval);
+        }).catch(()=>{});
+        document.removeEventListener('pointerdown', start);
+      };
+      document.addEventListener('pointerdown', start);
+    });
+  }
+
+  if(document.readyState === 'complete'){ fadeIn(); }
+  else { window.addEventListener('load', fadeIn); }
 })();
 
 function toggleMute(){
